@@ -1,12 +1,14 @@
 import express from "express";
 import cors from "cors";
-import ProvinceRouter from "./src/controllers/user-controller.js"
 import pool from './database/db.js';
 
+import eventRoutes from "./src/modules/event-routes.js";
+ 
 const app = express();
 const port = 3000;
 
 app.use(express.json()); 
+app.use("/api", eventRoutes);
 
 //Verificar la conexión a pgadmin
 app.get("/api/test-db", async (req, res) => {
