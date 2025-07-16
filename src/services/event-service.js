@@ -1,10 +1,10 @@
-import { getPaginatedEvents } from "../repositories/event-repository.js";
+import { getPaginatedEvents, getEventByIdFromDB  } from "../repositories/event-repository.js";
 
-export const listEvents = async (page = 1, size = 10) => {
+export const listEvents = async (page = 1, size = 10, filters = {}) => {
   const limit = size;
   const offset = (page - 1) * size;
 
-  const rows = await getPaginatedEvents(limit, offset);
+  const rows = await getPaginatedEvents(limit, offset, filters);
 
   return rows.map(row => ({
     id: row.id,
@@ -28,4 +28,9 @@ export const listEvents = async (page = 1, size = 10) => {
       max_capacity: row.max_capacity
     }
   }));
+};
+
+export const getEventDetail = async (id) => {
+  const event = await getEventByIdFromDB(id);
+  return event;
 };
