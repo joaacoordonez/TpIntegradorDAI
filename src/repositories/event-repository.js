@@ -146,30 +146,9 @@ export const insertEvent = async ({
   return result.rows[0].id;
 };
 
-export const updateEventInDB = async ({
-  id,
-  name,
-  description,
-  id_event_location,
-  start_date,
-  duration_in_minutes,
-  price,
-  enabled_for_enrollment,
-  max_assistance,
-}) => {
-  const query = `
-    UPDATE events SET
-      name = $1,
-      description = $2,
-      id_event_location = $3,
-      start_date = $4,
-      duration_in_minutes = $5,
-      price = $6,
-      enabled_for_enrollment = $7,
-      max_assistance = $8
-    WHERE id = $9
-  `;
-  const values = [
+export const updateEventInDB = async (eventData) => {
+  const {
+    id,
     name,
     description,
     id_event_location,
@@ -178,13 +157,35 @@ export const updateEventInDB = async ({
     price,
     enabled_for_enrollment,
     max_assistance,
-    id,
-  ];
-  await pool.query(query, values);
+  } = eventData;
+
+  await pool.query(
+    `UPDATE events SET
+      name = $1,
+      description = $2,
+      id_event_location = $3,
+      start_date = $4,
+      duration_in_minutes = $5,
+      price = $6,
+      enabled_for_enrollment = $7,
+      max_assistance = $8
+    WHERE id = $9`,
+    [
+      name,
+      description,
+      id_event_location,
+      start_date,
+      duration_in_minutes,
+      price,
+      enabled_for_enrollment,
+      max_assistance,
+      id
+    ]
+  );
 };
 
 export const getRegistrationsCount = async (eventId) => {
-  const query = `SELECT COUNT(*) FROM registrations WHERE id_event = $1`; 
+  const query = `SELECT COUNT(*) FROM event_enrollments WHERE id_event = $1`; 
   const result = await pool.query(query, [eventId]);
   return parseInt(result.rows[0].count, 10);
 };
@@ -199,4 +200,28 @@ export const getLocationById = async (id) => {
   const result = await pool.query(query, [id]);
   return result.rows[0];
 };
+
+export const isUserRegisteredInEvent = async (userId, eventId) => {
+  const result = await pool.query(
+    "SELECT 1 FROM event_enrollments WHERE id_user = $1 AND id_event = $2",
+    [userId, eventId]
+  );
+  return result.rowCount > 0;
+};
+
+export const registerUserInEvent = async (userId, eventId, registrationDateTime) => {
+  await pool.query(
+    `INSERT INTO event_enrollments (id_user, id_event, registration_date_time)
+     VALUES ($1, $2, $3)`,
+    [userId, eventId, registrationDateTime]
+  );
+};
+
+export const unregisterUserFromEvent = async (userId, eventId) => {
+  await pool.query(
+    `DELETE FROM event_enrollments WHERE id_user = $1 AND id_event = $2`,
+    [userId, eventId]
+  );
+};
+
 

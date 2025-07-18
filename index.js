@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 import eventRoutes from './src/modules/event-routes.js';
 import pool from './database/db.js'
 import userRoutes from "./src/modules/user-routes.js";
+import eventLocationRoutes from "./src/modules/event-location-routes.js";
+
+
+
 
 dotenv.config();
 
@@ -11,6 +15,7 @@ app.use(express.json());
 
 app.use('/api', eventRoutes);
 app.use("/api", userRoutes);
+app.use("/api", eventLocationRoutes);
 
 //Verificar la conexión a pgadmin
 app.get("/api/test-db", async (req, res) => {
